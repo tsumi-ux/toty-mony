@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة Wordle × Pips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="module">
+  // ====== حط بيانات مشروع Firebase بتاعك هنا (Project settings > SDK setup) ======
+  window.__FIREBASE_CONFIG__ = {
+    apiKey: "AIzaSyD2mBb4bg6oU2utL7rduovQfIFXM8Ul2TA",
+    authDomain: "toty-ad3fc.firebaseapp.com",
+    projectId: "toty-ad3fc",
+    storageBucket: "toty-ad3fc.firebasestorage.app",
+    messagingSenderId: "908996054767",
+    appId: "1:908996054767:web:0467068d12d72f95b7d51a"
+  };
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  const app = initializeApp(window.__FIREBASE_CONFIG__);
+  window.__db = getFirestore(app);
+  window.__docRef = doc(window.__db, "wordle-pips", "shared");
+  window.__setDoc = setDoc;
+  window.__onSnapshot = onSnapshot;
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+<style>
+  :root{
+    --bg: #161A1E;
+    --bg-raised: #1D2229;
+    --bg-card: #20262E;
+    --ink: #EDEAE1;
+    --ink-dim: #9CA3AC;
+    --hair: #333B44;
+    --easy: #6FAE72;
+    --easy-dim: #3A4A3B;
+    --medium: #D2A63D;
+    --medium-dim: #4A3F26;
+    --hard: #D2634B;
+    --hard-dim: #4A2E27;
+    --wordle-green: #538D4E;
+    --wordle-yellow: #B59F3B;
+    --wordle-grey: #4B5259;
+    --accentA: #7FA7D6;
+    --accentB: #D68F7F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    padding: 28px 16px 80px;
+  }
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: clamp(28px,6vw,38px);
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .sub{color:var(--ink-dim); font-size:14.5px; margin-bottom:28px;}
+
+  /* ---- names ---- */
+  .names{display:flex; gap:10px; margin-bottom:22px;}
+  .name-field{flex:1; display:flex; flex-direction:column; gap:6px;}
+  .name-field label{font-size:12px; color:var(--ink-dim);}
+  .name-field input{
+    background:var(--bg-raised); border:1px solid var(--hair); color:var(--ink);
+    border-radius:8px; padding:9px 11px; font-size:15px; font-family:inherit;
+  }
+  .name-field input:focus{outline:2px solid var(--accentA); outline-offset:1px;}
+
+  /* ---- scoreboard ---- */
+  .board{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:30px;
+  }
+  .board-card{
+    background:var(--bg-card); border:1px solid var(--hair); border-radius:14px;
+    padding:16px 14px;
+  }
+  .board-card .pname{font-size:14px; color:var(--ink-dim); margin-bottom:10px; font-weight:600;}
+  .board-row{display:flex; justify-content:space-between; align-items:baseline; padding:5px 0;}
+  .board-row .lbl{font-size:12.5px; color:var(--ink-dim);}
+  .board-row .val{font-family:'Fraunces',serif; font-weight:600; font-size:19px;}
+  .board-row.total{border-top:1px solid var(--hair); margin-top:6px; padding-top:10px;}
+  .board-row.total .val{font-size:26px;}
+
+  /* ---- sections ---- */
+  section{
+    background:var(--bg-card); border:1px solid var(--hair); border-radius:14px;
+    padding:18px 16px; margin-bottom:16px;
+  }
+  section h2{
+    font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin:0 0 4px;
+  }
+  .sec-note{font-size:12.5px; color:var(--ink-dim); margin-bottom:14px;}
+
+  /* wordle attempt buttons */
+  .wordle-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .wordle-row .who{width:64px; flex-shrink:0; font-size:13.5px; color:var(--ink-dim); font-weight:600;}
+  .attempt-grid{display:flex; gap:6px; flex-wrap:wrap;}
+  .attempt-btn{
+    width:34px; height:34px; border-radius:7px; border:1px solid var(--hair);
+    background:var(--bg-raised); color:var(--ink); font-family:'IBM Plex Sans Arabic',sans-serif;
+    font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition: background .12s, border-color .12s, transform .08s;
+  }
+  .attempt-btn:hover{border-color:var(--accentA);}
+  .attempt-btn.active{background:var(--wordle-green); border-color:var(--wordle-green); color:#0F1418; font-weight:700;}
+  .attempt-btn.fail-btn.active{background:var(--hard); border-color:var(--hard); color:#1A0E0A;}
+
+  /* pips levels */
+  .level-tag{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
+    padding:3px 9px; border-radius:20px; margin-bottom:10px;
+  }
+  .level-tag.easy{background:var(--easy-dim); color:var(--easy);}
+  .level-tag.medium{background:var(--medium-dim); color:var(--medium);}
+  .level-tag.hard{background:var(--hard-dim); color:var(--hard);}
+  .level-block{margin-bottom:18px;}
+  .level-block:last-child{margin-bottom:0;}
+  .time-row{display:flex; gap:10px;}
+  .time-field{flex:1; display:flex; flex-direction:column; gap:5px;}
+  .time-field label{font-size:12px; color:var(--ink-dim);}
+  .time-field input{
+    background:var(--bg-raised); border:1px solid var(--hair); color:var(--ink);
+    border-radius:8px; padding:8px 10px; font-size:15px; font-family:inherit; width:100%;
+    direction:ltr; text-align:left;
+  }
+  .time-field input:focus{outline:2px solid var(--accentA); outline-offset:1px;}
+  .time-field .hint{font-size:11px; color:var(--ink-dim); opacity:.75;}
+
+  .save-bar{display:flex; gap:10px; margin-top:6px;}
+  button.primary{
+    flex:1; background:var(--accentA); color:#101418; border:none; border-radius:10px;
+    padding:13px; font-size:15.5px; font-weight:700; cursor:pointer; font-family:inherit;
+    transition: filter .1s;
+  }
+  button.primary:hover{filter:brightness(1.08);}
+  button.primary:active{transform:translateY(1px);}
+  .msg{font-size:13px; color:var(--easy); min-height:18px; margin-top:8px;}
+  .msg.err{color:var(--hard);}
+
+  /* history */
+  .hist-entry{
+    border:1px solid var(--hair); border-radius:12px; padding:12px 13px; margin-bottom:10px;
+    background:var(--bg-raised);
+  }
+  .hist-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+  .hist-date{font-size:13px; color:var(--ink-dim); font-weight:600;}
+  .hist-del{background:none; border:none; color:var(--ink-dim); font-size:12px; cursor:pointer; text-decoration:underline;}
+  .hist-del:hover{color:var(--hard);}
+  .hist-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px;}
+  .hist-col b{display:block; margin-bottom:3px; color:var(--ink);}
+  .hist-line{color:var(--ink-dim); font-size:12.5px;}
+  .hist-day-score{font-family:'Fraunces',serif; font-weight:600; font-size:15px;}
+  .empty-hist{color:var(--ink-dim); font-size:13.5px; text-align:center; padding:18px 0;}
+
+  .footer-note{color:var(--ink-dim); font-size:11.5px; text-align:center; margin-top:22px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wordle × Pips</h1>
+  <div class="sub">سجّلوا نتيجة كل يوم، وهو بيحسب النقط والسرعة تلقائي.</div>
+
+  <div class="names">
+    <div class="name-field">
+      <label>اللاعب الأول</label>
+      <input id="nameA" type="text" placeholder="الاسم">
+    </div>
+    <div class="name-field">
+      <label>اللاعب التاني</label>
+      <input id="nameB" type="text" placeholder="الاسم">
+    </div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <section>
+    <h2>Wordle</h2>
+    <div class="sec-note">اختار عدد المحاولات اللي حليت بيها، أو X لو فشلت.</div>
+    <div class="wordle-row">
+      <div class="who" id="wLabelA">اللاعب 1</div>
+      <div class="attempt-grid" id="wordleA"></div>
+    </div>
+    <div class="wordle-row">
+      <div class="who" id="wLabelB">اللاعب 2</div>
+      <div class="attempt-grid" id="wordleB"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pips</h2>
+    <div class="sec-note">اكتب زمن كل واحد بصيغة mm:ss (مثلاً 2:14) أو بالثواني بس. سيبه فاضي لو ما لعبش المستوى ده.</div>
+
+    <div class="level-block">
+      <span class="level-tag easy">سهل · أساس 1 + بونص 1</span>
+      <div class="time-row">
+        <div class="time-field"><label id="pLabelA-easy">اللاعب 1</label><input id="easyA" type="text" placeholder="mm:ss"></div>
+        <div class="time-field"><label id="pLabelB-easy">اللاعب 2</label><input id="easyB" type="text" placeholder="mm:ss"></div>
+      </div>
+    </div>
+
+    <div class="level-block">
+      <span class="level-tag medium">متوسط · أساس 3 + بونص 1</span>
+      <div class="time-row">
+        <div class="time-field"><label id="pLabelA-medium">اللاعب 1</label><input id="mediumA" type="text" placeholder="mm:ss"></div>
+        <div class="time-field"><label id="pLabelB-medium">اللاعب 2</label><input id="mediumB" type="text" placeholder="mm:ss"></div>
+      </div>
+    </div>
+
+    <div class="level-block">
+      <span class="level-tag hard">صعب · أساس 5 + بونص 2</span>
+      <div class="time-row">
+        <div class="time-field"><label id="pLabelA-hard">اللاعب 1</label><input id="hardA" type="text" placeholder="mm:ss"></div>
+        <div class="time-field"><label id="pLabelB-hard">اللاعب 2</label><input id="hardB" type="text" placeholder="mm:ss"></div>
+      </div>
+    </div>
+  </section>
+
+  <div>
+    <div class="name-field" style="margin-bottom:10px;">
+      <label>تاريخ اليوم</label>
+      <input id="entryDate" type="date">
+    </div>
+    <div class="save-bar">
+      <button class="primary" id="saveBtn">تسجيل اليوم</button>
+    </div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <section style="margin-top:24px;">
+    <h2>السجل</h2>
+    <div id="history"></div>
+  </section>
+
+  <div class="footer-note">البيانات محفوظة ومشتركة بينكم الاتنين على نفس الرابط.</div>
+</div>
+
+<script>
+const WORDLE_POINTS = {1:10, 2:7, 3:5, 4:3, 5:2, 6:1, 'X':-2};
+const LEVELS = {
+  easy:   {label:'سهل',    base:1, bonus:1},
+  medium: {label:'متوسط', base:3, bonus:1},
+  hard:   {label:'صعب',   base:5, bonus:2},
+};
+
+let players = {a:'اللاعب 1', b:'اللاعب 2'};
+let history = [];
+let wordleSel = {a:null, b:null};
+
+function parseTime(str){
+  if(!str) return null;
+  str = str.trim();
+  if(str === '') return null;
+  if(str.includes(':')){
+    const parts = str.split(':');
+    if(parts.length !== 2) return null;
+    const m = parseInt(parts[0],10), s = parseInt(parts[1],10);
+    if(isNaN(m) || isNaN(s)) return null;
+    return m*60+s;
+  }
+  const n = parseFloat(str);
+  return isNaN(n) ? null : n;
+}
+
+function fmtTime(sec){
+  if(sec === null || sec === undefined) return '—';
+  const m = Math.floor(sec/60), s = Math.round(sec%60);
+  return m + ':' + String(s).padStart(2,'0');
+}
+
+function computeWordle(attempt){
+  if(attempt === null || attempt === undefined) return 0;
+  return WORDLE_POINTS[attempt] ?? 0;
+}
+
+function computePipsLevel(levelKey, timeA, timeB){
+  const cfg = LEVELS[levelKey];
+  let sa = 0, sb = 0;
+  const playedA = timeA !== null, playedB = timeB !== null;
+  if(playedA) sa += cfg.base;
+  if(playedB) sb += cfg.base;
+  if(playedA && playedB){
+    if(timeA < timeB) sa += cfg.bonus;
+    else if(timeB < timeA) sb += cfg.bonus;
+  }
+  return {a:sa, b:sb};
+}
+
+function renderWordleButtons(){
+  const optsA = document.getElementById('wordleA');
+  const optsB = document.getElementById('wordleB');
+  optsA.innerHTML = ''; optsB.innerHTML = '';
+  [['a',optsA],['b',optsB]].forEach(([who, container])=>{
+    [1,2,3,4,5,6].forEach(n=>{
+      const btn = document.createElement('button');
+      btn.className = 'attempt-btn';
+      btn.type = 'button';
+      btn.textContent = n;
+      btn.onclick = ()=>{ wordleSel[who] = n; renderWordleButtons(); };
+      if(wordleSel[who] === n) btn.classList.add('active');
+      container.appendChild(btn);
+    });
+    const xbtn = document.createElement('button');
+    xbtn.className = 'attempt-btn fail-btn';
+    xbtn.type = 'button';
+    xbtn.textContent = 'X';
+    xbtn.onclick = ()=>{ wordleSel[who] = 'X'; renderWordleButtons(); };
+    if(wordleSel[who] === 'X') xbtn.classList.add('active');
+    container.appendChild(xbtn);
+  });
+}
+
+function renderLabels(){
+  document.getElementById('wLabelA').textContent = players.a;
+  document.getElementById('wLabelB').textContent = players.b;
+  ['easy','medium','hard'].forEach(lv=>{
+    document.getElementById('pLabelA-'+lv).textContent = players.a;
+    document.getElementById('pLabelB-'+lv).textContent = players.b;
+  });
+}
+
+function renderBoard(){
+  const totals = computeTotals();
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  ['a','b'].forEach(who=>{
+    const card = document.createElement('div');
+    card.className = 'board-card';
+    card.innerHTML = `
+      <div class="pname">${players[who]}</div>
+      <div class="board-row"><span class="lbl">Wordle</span><span class="val">${totals[who].wordle}</span></div>
+      <div class="board-row"><span class="lbl">Pips</span><span class="val">${totals[who].pips}</span></div>
+      <div class="board-row total"><span class="lbl">الإجمالي</span><span class="val">${totals[who].overall}</span></div>
+    `;
+    board.appendChild(card);
+  });
+}
+
+function computeTotals(){
+  const t = {a:{wordle:0,pips:0,overall:0}, b:{wordle:0,pips:0,overall:0}};
+  history.forEach(e=>{
+    t.a.wordle += e.scores.wordleA; t.b.wordle += e.scores.wordleB;
+    t.a.pips += e.scores.pipsA; t.b.pips += e.scores.pipsB;
+  });
+  t.a.overall = t.a.wordle + t.a.pips;
+  t.b.overall = t.b.wordle + t.b.pips;
+  return t;
+}
+
+function renderHistory(){
+  const el = document.getElementById('history');
+  if(history.length === 0){
+    el.innerHTML = '<div class="empty-hist">لسه مفيش أيام متسجلة.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  [...history].sort((x,y)=> y.date.localeCompare(x.date)).forEach(e=>{
+    const div = document.createElement('div');
+    div.className = 'hist-entry';
+    const dayTotalA = e.scores.wordleA + e.scores.pipsA;
+    const dayTotalB = e.scores.wordleB + e.scores.pipsB;
+
+    const wLineA = e.wordle.a ? (e.wordle.a==='X' ? 'فشل (X)' : e.wordle.a + ' محاولات') : '—';
+    const wLineB = e.wordle.b ? (e.wordle.b==='X' ? 'فشل (X)' : e.wordle.b + ' محاولات') : '—';
+
+    const pLines = (who)=>{
+      return ['easy','medium','hard'].map(lv=>{
+        const t = e.pips[lv][who];
+        if(t === null) return null;
+        return LEVELS[lv].label + ' ' + fmtTime(t);
+      }).filter(Boolean).join(' · ') || '—';
+    };
+
+    div.innerHTML = `
+      <div class="hist-top">
+        <span class="hist-date">${e.date}</span>
+        <button class="hist-del" data-id="${e.id}">حذف</button>
+      </div>
+      <div class="hist-grid">
+        <div class="hist-col">
+          <b>${players.a} · <span class="hist-day-score">${dayTotalA}</span></b>
+          <div class="hist-line">Wordle: ${wLineA} (${e.scores.wordleA})</div>
+          <div class="hist-line">Pips: ${pLines('a')} (${e.scores.pipsA})</div>
+        </div>
+        <div class="hist-col">
+          <b>${players.b} · <span class="hist-day-score">${dayTotalB}</span></b>
+          <div class="hist-line">Wordle: ${wLineB} (${e.scores.wordleB})</div>
+          <div class="hist-line">Pips: ${pLines('b')} (${e.scores.pipsB})</div>
+        </div>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+  el.querySelectorAll('.hist-del').forEach(btn=>{
+    btn.onclick = ()=> deleteEntry(btn.dataset.id);
+  });
+}
+
+async function deleteEntry(id){
+  history = history.filter(e=> e.id !== id);
+  await persistHistory();
+  renderBoard();
+  renderHistory();
+}
+
+let suppressNextSnapshot = false;
+
+async function persistAll(){
+  try{
+    suppressNextSnapshot = true;
+    await window.__setDoc(window.__docRef, { players, history });
+  }catch(err){ console.error('save failed', err); showMsg('حصل خطأ في الحفظ — اتأكد إنك واصل بالنت', true); }
+}
+// kept for compatibility with earlier calls in the file
+async function persistHistory(){ await persistAll(); }
+async function persistPlayers(){ await persistAll(); }
+
+function loadAll(){
+  window.__onSnapshot(window.__docRef, (snap)=>{
+    if(suppressNextSnapshot){ suppressNextSnapshot = false; return; }
+    const data = snap.data();
+    if(data){
+      players = data.players || players;
+      history = data.history || history;
+    }
+    document.getElementById('nameA').value = players.a;
+    document.getElementById('nameB').value = players.b;
+    renderLabels();
+    renderBoard();
+    renderHistory();
+  }, (err)=>{
+    console.error('sync error', err);
+    showMsg('مشكلة في الاتصال بقاعدة البيانات — راجع إعدادات Firebase', true);
+  });
+}
+
+function showMsg(text, isErr){
+  const m = document.getElementById('msg');
+  m.textContent = text;
+  m.className = 'msg' + (isErr ? ' err' : '');
+  if(!isErr) setTimeout(()=>{ if(m.textContent === text) m.textContent=''; }, 2500);
+}
+
+async function saveEntry(){
+  const date = document.getElementById('entryDate').value;
+  if(!date){ showMsg('اختار التاريخ الأول', true); return; }
+  if(history.some(e=> e.date === date)){
+    showMsg('في يوم متسجل بنفس التاريخ ده بالفعل — احذفه الأول لو عايز تعدل', true);
+    return;
+  }
+
+  const wA = wordleSel.a, wB = wordleSel.b;
+  const wordleA_score = computeWordle(wA);
+  const wordleB_score = computeWordle(wB);
+
+  const pips = {};
+  let pipsA_total = 0, pipsB_total = 0;
+  ['easy','medium','hard'].forEach(lv=>{
+    const ta = parseTime(document.getElementById(lv+'A').value);
+    const tb = parseTime(document.getElementById(lv+'B').value);
+    pips[lv] = {a: ta, b: tb};
+    const res = computePipsLevel(lv, ta, tb);
+    pipsA_total += res.a; pipsB_total += res.b;
+  });
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    date,
+    wordle: {a: wA, b: wB},
+    pips,
+    scores: {
+      wordleA: wordleA_score, wordleB: wordleB_score,
+      pipsA: pipsA_total, pipsB: pipsB_total
+    }
+  };
+
+  history.push(entry);
+  await persistHistory();
+  renderBoard();
+  renderHistory();
+  showMsg('اتسجل! ✓', false);
+
+  // reset form
+  wordleSel = {a:null, b:null};
+  renderWordleButtons();
+  ['easyA','easyB','mediumA','mediumB','hardA','hardB'].forEach(id=> document.getElementById(id).value = '');
+}
+
+document.getElementById('nameA').addEventListener('change', async (e)=>{
+  players.a = e.target.value.trim() || 'اللاعب 1';
+  await persistPlayers();
+  renderLabels(); renderBoard(); renderHistory();
+});
+document.getElementById('nameB').addEventListener('change', async (e)=>{
+  players.b = e.target.value.trim() || 'اللاعب 2';
+  await persistPlayers();
+  renderLabels(); renderBoard(); renderHistory();
+});
+document.getElementById('saveBtn').addEventListener('click', saveEntry);
+
+// default date = today
+const today = new Date();
+document.getElementById('entryDate').value = today.toISOString().slice(0,10);
+
+renderWordleButtons();
+if(window.__onSnapshot){
+  loadAll();
+} else {
+  window.addEventListener('firebase-ready', loadAll, {once:true});
+}
+</script>
+</body>
+</html>
