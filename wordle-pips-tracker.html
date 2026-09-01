@@ -100,6 +100,22 @@
   }
   .sec-note{font-size:12.5px; color:var(--ink-dim); margin-bottom:14px;}
 
+  /* whoami selector */
+  .whoami-box{margin-bottom:22px;}
+  .whoami-btns{display:flex; gap:10px;}
+  .who-btn{
+    flex:1; background:var(--bg-raised); border:1px solid var(--hair); color:var(--ink);
+    border-radius:10px; padding:13px; font-size:15px; font-weight:600; cursor:pointer;
+    font-family:inherit; transition: border-color .12s, background .12s;
+  }
+  .who-btn.active{background:var(--accentA); border-color:var(--accentA); color:#101418;}
+
+  .status-line{
+    font-size:13px; color:var(--ink-dim); margin-bottom:16px; padding:10px 12px;
+    background:var(--bg-raised); border-radius:10px; border:1px solid var(--hair);
+  }
+  .status-line.done{color:var(--easy);}
+
   /* wordle attempt buttons */
   .wordle-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .wordle-row .who{width:64px; flex-shrink:0; font-size:13.5px; color:var(--ink-dim); font-weight:600;}
@@ -182,55 +198,59 @@
 
   <div class="board" id="board"></div>
 
-  <section>
-    <h2>Wordle</h2>
-    <div class="sec-note">اختار عدد المحاولات اللي حليت بيها، أو X لو فشلت.</div>
-    <div class="wordle-row">
-      <div class="who" id="wLabelA">اللاعب 1</div>
-      <div class="attempt-grid" id="wordleA"></div>
+  <div class="whoami-box">
+    <div class="sec-note" style="margin-bottom:8px;">انت مين؟</div>
+    <div class="whoami-btns">
+      <button class="who-btn" id="whoBtnA" type="button"></button>
+      <button class="who-btn" id="whoBtnB" type="button"></button>
     </div>
-    <div class="wordle-row">
-      <div class="who" id="wLabelB">اللاعب 2</div>
-      <div class="attempt-grid" id="wordleB"></div>
-    </div>
-  </section>
+  </div>
 
-  <section>
-    <h2>Pips</h2>
-    <div class="sec-note">اكتب زمن كل واحد بصيغة mm:ss (مثلاً 2:14) أو بالثواني بس. سيبه فاضي لو ما لعبش المستوى ده.</div>
+  <div id="entryArea" style="display:none;">
+    <div class="status-line" id="statusLine"></div>
 
-    <div class="level-block">
-      <span class="level-tag easy">سهل · أساس 1 + بونص 1</span>
-      <div class="time-row">
-        <div class="time-field"><label id="pLabelA-easy">اللاعب 1</label><input id="easyA" type="text" placeholder="mm:ss"></div>
-        <div class="time-field"><label id="pLabelB-easy">اللاعب 2</label><input id="easyB" type="text" placeholder="mm:ss"></div>
-      </div>
-    </div>
-
-    <div class="level-block">
-      <span class="level-tag medium">متوسط · أساس 3 + بونص 1</span>
-      <div class="time-row">
-        <div class="time-field"><label id="pLabelA-medium">اللاعب 1</label><input id="mediumA" type="text" placeholder="mm:ss"></div>
-        <div class="time-field"><label id="pLabelB-medium">اللاعب 2</label><input id="mediumB" type="text" placeholder="mm:ss"></div>
-      </div>
-    </div>
-
-    <div class="level-block">
-      <span class="level-tag hard">صعب · أساس 5 + بونص 2</span>
-      <div class="time-row">
-        <div class="time-field"><label id="pLabelA-hard">اللاعب 1</label><input id="hardA" type="text" placeholder="mm:ss"></div>
-        <div class="time-field"><label id="pLabelB-hard">اللاعب 2</label><input id="hardB" type="text" placeholder="mm:ss"></div>
-      </div>
-    </div>
-  </section>
-
-  <div>
-    <div class="name-field" style="margin-bottom:10px;">
-      <label>تاريخ اليوم</label>
+    <div class="name-field" style="margin-bottom:16px;">
+      <label>التاريخ</label>
       <input id="entryDate" type="date">
     </div>
+
+    <section>
+      <h2>Wordle</h2>
+      <div class="sec-note">اختار عدد المحاولات اللي حليت بيها، أو X لو فشلت.</div>
+      <div class="wordle-row">
+        <div class="who" id="wLabelMe"></div>
+        <div class="attempt-grid" id="wordleMe"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Pips</h2>
+      <div class="sec-note">اكتب زمنك بصيغة mm:ss (مثلاً 2:14) أو بالثواني بس. سيبه فاضي لو ما لعبتش المستوى ده.</div>
+
+      <div class="level-block">
+        <span class="level-tag easy">سهل · أساس 1 + بونص 1</span>
+        <div class="time-row">
+          <div class="time-field"><label id="pLabelMe-easy"></label><input id="easyMe" type="text" placeholder="mm:ss"></div>
+        </div>
+      </div>
+
+      <div class="level-block">
+        <span class="level-tag medium">متوسط · أساس 3 + بونص 1</span>
+        <div class="time-row">
+          <div class="time-field"><label id="pLabelMe-medium"></label><input id="mediumMe" type="text" placeholder="mm:ss"></div>
+        </div>
+      </div>
+
+      <div class="level-block">
+        <span class="level-tag hard">صعب · أساس 5 + بونص 2</span>
+        <div class="time-row">
+          <div class="time-field"><label id="pLabelMe-hard"></label><input id="hardMe" type="text" placeholder="mm:ss"></div>
+        </div>
+      </div>
+    </section>
+
     <div class="save-bar">
-      <button class="primary" id="saveBtn">تسجيل اليوم</button>
+      <button class="primary" id="saveBtn">حفظ نتيجتي</button>
     </div>
     <div class="msg" id="msg"></div>
   </div>
@@ -253,7 +273,9 @@ const LEVELS = {
 
 let players = {a:'اللاعب 1', b:'اللاعب 2'};
 let history = [];
-let wordleSel = {a:null, b:null};
+let wordleSel = null;
+let currentPlayer = localStorage.getItem('wordle-pips-whoami');
+if(currentPlayer !== 'a' && currentPlayer !== 'b') currentPlayer = null;
 
 function parseTime(str){
   if(!str) return null;
@@ -295,36 +317,85 @@ function computePipsLevel(levelKey, timeA, timeB){
 }
 
 function renderWordleButtons(){
-  const optsA = document.getElementById('wordleA');
-  const optsB = document.getElementById('wordleB');
-  optsA.innerHTML = ''; optsB.innerHTML = '';
-  [['a',optsA],['b',optsB]].forEach(([who, container])=>{
-    [1,2,3,4,5,6].forEach(n=>{
-      const btn = document.createElement('button');
-      btn.className = 'attempt-btn';
-      btn.type = 'button';
-      btn.textContent = n;
-      btn.onclick = ()=>{ wordleSel[who] = n; renderWordleButtons(); };
-      if(wordleSel[who] === n) btn.classList.add('active');
-      container.appendChild(btn);
-    });
-    const xbtn = document.createElement('button');
-    xbtn.className = 'attempt-btn fail-btn';
-    xbtn.type = 'button';
-    xbtn.textContent = 'X';
-    xbtn.onclick = ()=>{ wordleSel[who] = 'X'; renderWordleButtons(); };
-    if(wordleSel[who] === 'X') xbtn.classList.add('active');
-    container.appendChild(xbtn);
+  const container = document.getElementById('wordleMe');
+  container.innerHTML = '';
+  [1,2,3,4,5,6].forEach(n=>{
+    const btn = document.createElement('button');
+    btn.className = 'attempt-btn';
+    btn.type = 'button';
+    btn.textContent = n;
+    btn.onclick = ()=>{ wordleSel = n; renderWordleButtons(); };
+    if(wordleSel === n) btn.classList.add('active');
+    container.appendChild(btn);
   });
+  const xbtn = document.createElement('button');
+  xbtn.className = 'attempt-btn fail-btn';
+  xbtn.type = 'button';
+  xbtn.textContent = 'X';
+  xbtn.onclick = ()=>{ wordleSel = 'X'; renderWordleButtons(); };
+  if(wordleSel === 'X') xbtn.classList.add('active');
+  container.appendChild(xbtn);
 }
 
 function renderLabels(){
-  document.getElementById('wLabelA').textContent = players.a;
-  document.getElementById('wLabelB').textContent = players.b;
+  if(!currentPlayer) return;
+  document.getElementById('wLabelMe').textContent = players[currentPlayer];
   ['easy','medium','hard'].forEach(lv=>{
-    document.getElementById('pLabelA-'+lv).textContent = players.a;
-    document.getElementById('pLabelB-'+lv).textContent = players.b;
+    document.getElementById('pLabelMe-'+lv).textContent = players[currentPlayer];
   });
+}
+
+function renderWhoAmI(){
+  const btnA = document.getElementById('whoBtnA');
+  const btnB = document.getElementById('whoBtnB');
+  btnA.textContent = 'أنا ' + players.a;
+  btnB.textContent = 'أنا ' + players.b;
+  btnA.classList.toggle('active', currentPlayer === 'a');
+  btnB.classList.toggle('active', currentPlayer === 'b');
+  btnA.onclick = ()=> setCurrentPlayer('a');
+  btnB.onclick = ()=> setCurrentPlayer('b');
+}
+
+function setCurrentPlayer(who){
+  currentPlayer = who;
+  localStorage.setItem('wordle-pips-whoami', who);
+  document.getElementById('entryArea').style.display = 'block';
+  renderWhoAmI();
+  renderLabels();
+  loadFormForDate();
+}
+
+function otherPlayer(who){ return who === 'a' ? 'b' : 'a'; }
+
+function findEntry(date){
+  return history.find(e=> e.date === date);
+}
+
+function loadFormForDate(){
+  if(!currentPlayer) return;
+  const date = document.getElementById('entryDate').value;
+  const entry = findEntry(date);
+  wordleSel = entry ? entry.wordle[currentPlayer] : null;
+  renderWordleButtons();
+  ['easy','medium','hard'].forEach(lv=>{
+    const t = entry ? entry.pips[lv][currentPlayer] : null;
+    document.getElementById(lv+'Me').value = (t === null || t === undefined) ? '' : fmtTime(t);
+  });
+  updateStatusLine(entry);
+}
+
+function updateStatusLine(entry){
+  const el = document.getElementById('statusLine');
+  const other = otherPlayer(currentPlayer);
+  const otherName = players[other];
+  const otherHasData = entry && (entry.wordle[other] !== null || ['easy','medium','hard'].some(lv=> entry.pips[lv][other] !== null));
+  if(otherHasData){
+    el.textContent = '✓ ' + otherName + ' سجّل نتيجته اليوم ده';
+    el.classList.add('done');
+  }else{
+    el.textContent = otherName + ' لسه ما سجّلش نتيجته اليوم ده';
+    el.classList.remove('done');
+  }
 }
 
 function renderBoard(){
@@ -409,9 +480,11 @@ async function deleteEntry(id){
   await persistHistory();
   renderBoard();
   renderHistory();
+  if(currentPlayer) loadFormForDate();
 }
 
 let suppressNextSnapshot = false;
+let initialFormLoaded = false;
 
 async function persistAll(){
   try{
@@ -434,8 +507,18 @@ function loadAll(){
     document.getElementById('nameA').value = players.a;
     document.getElementById('nameB').value = players.b;
     renderLabels();
+    renderWhoAmI();
     renderBoard();
     renderHistory();
+    if(currentPlayer){
+      if(!initialFormLoaded){
+        initialFormLoaded = true;
+        loadFormForDate();
+      } else {
+        const date = document.getElementById('entryDate').value;
+        updateStatusLine(findEntry(date));
+      }
+    }
   }, (err)=>{
     console.error('sync error', err);
     showMsg('مشكلة في الاتصال بقاعدة البيانات — راجع إعدادات Firebase', true);
@@ -449,68 +532,70 @@ function showMsg(text, isErr){
   if(!isErr) setTimeout(()=>{ if(m.textContent === text) m.textContent=''; }, 2500);
 }
 
-async function saveEntry(){
-  const date = document.getElementById('entryDate').value;
-  if(!date){ showMsg('اختار التاريخ الأول', true); return; }
-  if(history.some(e=> e.date === date)){
-    showMsg('في يوم متسجل بنفس التاريخ ده بالفعل — احذفه الأول لو عايز تعدل', true);
-    return;
-  }
-
-  const wA = wordleSel.a, wB = wordleSel.b;
-  const wordleA_score = computeWordle(wA);
-  const wordleB_score = computeWordle(wB);
-
-  const pips = {};
+function recomputeScores(entry){
+  entry.scores.wordleA = computeWordle(entry.wordle.a);
+  entry.scores.wordleB = computeWordle(entry.wordle.b);
   let pipsA_total = 0, pipsB_total = 0;
   ['easy','medium','hard'].forEach(lv=>{
-    const ta = parseTime(document.getElementById(lv+'A').value);
-    const tb = parseTime(document.getElementById(lv+'B').value);
-    pips[lv] = {a: ta, b: tb};
-    const res = computePipsLevel(lv, ta, tb);
+    const res = computePipsLevel(lv, entry.pips[lv].a, entry.pips[lv].b);
     pipsA_total += res.a; pipsB_total += res.b;
   });
+  entry.scores.pipsA = pipsA_total;
+  entry.scores.pipsB = pipsB_total;
+}
 
-  const entry = {
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-    date,
-    wordle: {a: wA, b: wB},
-    pips,
-    scores: {
-      wordleA: wordleA_score, wordleB: wordleB_score,
-      pipsA: pipsA_total, pipsB: pipsB_total
-    }
-  };
+async function saveMyEntry(){
+  if(!currentPlayer){ showMsg('اختار مين انت الأول', true); return; }
+  const date = document.getElementById('entryDate').value;
+  if(!date){ showMsg('اختار التاريخ الأول', true); return; }
 
-  history.push(entry);
-  await persistHistory();
+  let entry = findEntry(date);
+  if(!entry){
+    entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+      date,
+      wordle: {a:null, b:null},
+      pips: { easy:{a:null,b:null}, medium:{a:null,b:null}, hard:{a:null,b:null} },
+      scores: {wordleA:0, wordleB:0, pipsA:0, pipsB:0}
+    };
+    history.push(entry);
+  }
+
+  entry.wordle[currentPlayer] = wordleSel;
+  ['easy','medium','hard'].forEach(lv=>{
+    entry.pips[lv][currentPlayer] = parseTime(document.getElementById(lv+'Me').value);
+  });
+  recomputeScores(entry);
+
+  await persistAll();
   renderBoard();
   renderHistory();
-  showMsg('اتسجل! ✓', false);
-
-  // reset form
-  wordleSel = {a:null, b:null};
-  renderWordleButtons();
-  ['easyA','easyB','mediumA','mediumB','hardA','hardB'].forEach(id=> document.getElementById(id).value = '');
+  updateStatusLine(entry);
+  showMsg('اتحفظت نتيجتك! ✓', false);
 }
 
 document.getElementById('nameA').addEventListener('change', async (e)=>{
   players.a = e.target.value.trim() || 'اللاعب 1';
   await persistPlayers();
-  renderLabels(); renderBoard(); renderHistory();
+  renderLabels(); renderWhoAmI(); renderBoard(); renderHistory();
 });
 document.getElementById('nameB').addEventListener('change', async (e)=>{
   players.b = e.target.value.trim() || 'اللاعب 2';
   await persistPlayers();
-  renderLabels(); renderBoard(); renderHistory();
+  renderLabels(); renderWhoAmI(); renderBoard(); renderHistory();
 });
-document.getElementById('saveBtn').addEventListener('click', saveEntry);
+document.getElementById('saveBtn').addEventListener('click', saveMyEntry);
+document.getElementById('entryDate').addEventListener('change', loadFormForDate);
 
 // default date = today
 const today = new Date();
 document.getElementById('entryDate').value = today.toISOString().slice(0,10);
 
-renderWordleButtons();
+renderWhoAmI();
+if(currentPlayer){
+  document.getElementById('entryArea').style.display = 'block';
+  renderLabels();
+}
 if(window.__onSnapshot){
   loadAll();
 } else {
